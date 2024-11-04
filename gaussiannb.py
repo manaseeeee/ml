@@ -8,7 +8,7 @@ df = pd.read_csv('creditcard.csv')
 print("First 5 rows of the dataset:")
 print(df.head())
 
-# Step 2: Basic information about the dataset before dropping null values
+# Step 2: Basic information about the dataset before dropping null values 
 print("\nBasic Information Before Dropping Null Values:")
 print(df.info())
 
