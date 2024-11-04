@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 
 # Step 1: Load the dataset
 df = pd.read_csv('creditcard.csv')
-print("First 5 rows of the dataset:")
+print("First 5 rows of the dataset:")  
 print(df.head())
 
 # Step 2: Basic information about the dataset before dropping null values
