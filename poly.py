@@ -4,10 +4,9 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
-# Load data from CSV
-data = pd.read_csv('icecream_sales.csv')  # Update with your file path
-X = data['temperature'].values.reshape(-1, 1)  # Replace 'temperature' with the actual column name
-y = data['sales'].values  # Replace 'sales' with the actual column name
+data = pd.read_csv('icecream_sales.csv') 
+X = data['temperature'].values.reshape(-1, 1)  
+y = data['sales'].values  
 
 degree = 3
 poly_features = PolynomialFeatures(degree=degree)
