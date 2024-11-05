@@ -5,6 +5,7 @@ import pandas as pd
 
 iris = load_iris()
 X = iris.data  
+y = iris.target  
 
 plt.scatter(X[:, 0], X[:, 1], c='blue', marker='o')
 plt.title('Scatter Plot of Iris Data (Sepal Length vs Sepal Width)')
@@ -15,7 +16,7 @@ plt.show()
 inertias = []
 for i in range(1, 11):
     kmeans = KMeans(n_clusters=i, random_state=42)
-    kmeans.fit(X)  # Use the features, not the labels
+    kmeans.fit(X) 
     inertias.append(kmeans.inertia_)
 
 plt.plot(range(1, 11), inertias, marker='o')
@@ -24,7 +25,7 @@ plt.xlabel('Number of clusters')
 plt.ylabel('Inertia')
 plt.show()
 
-optimal_k = 3  
+optimal_k = 3 
 kmeans = KMeans(n_clusters=optimal_k, random_state=42)
 kmeans.fit(X)
 
