@@ -1,71 +1,36 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
 
-X, y = make_blobs(n_samples=500, n_features=2, centers=3, random_state=23)
-fig = plt.figure(0)
-plt.grid(True)
-plt.scatter(X[:, 0], X[:, 1])
+x = [4, 5, 10, 4, 3, 11, 14, 6, 10, 12]
+y = [21, 19, 24, 17, 16, 25, 24, 22, 21, 21]
+data = list(zip(x, y))
+
+plt.scatter(x, y)
+plt.title('Scatter Plot of Data Points')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
 plt.show()
 
-k = 3
-clusters = {}
-np.random.seed(23)
+inertias = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, random_state=42)
+    kmeans.fit(data)
+    inertias.append(kmeans.inertia_)
 
-for idx in range(k):
-    center = 2 * (2 * np.random.random((X.shape[1],)) - 1)
-    cluster = {
-        'center': center,
-        'points': []
-    }
-    clusters[idx] = cluster
-
-plt.scatter(X[:, 0], X[:, 1])
-plt.grid(True)
-for i in clusters:
-    center = clusters[i]['center']
-    plt.scatter(center[0], center[1], marker='*', color='red')
+plt.plot(range(1, 11), inertias, marker='o')
+plt.title('Elbow Method for Optimal k')
+plt.xlabel('Number of clusters')
+plt.ylabel('Inertia')
 plt.show()
 
-def distance(p1, p2):
-    return np.sqrt(np.sum((p1 - p2) ** 2))
+optimal_k = 2  
+kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+kmeans.fit(data)
 
-def assign_clusters(X, clusters):
-    for idx in range(X.shape[0]):
-        dist = []
-        curr_x = X[idx]
-        for i in range(k):
-            dis = distance(curr_x, clusters[i]['center'])
-            dist.append(dis)
-        curr_cluster = np.argmin(dist)
-        clusters[curr_cluster]['points'].append(curr_x)
-    
-    return clusters
-
-def update_clusters(clusters):
-    for i in range(k):
-        points = np.array(clusters[i]['points'])
-        if points.shape[0] > 0:
-            new_center = points.mean(axis=0)
-            clusters[i]['center'] = new_center
-        clusters[i]['points'] = []
-    return clusters
-
-def pred_cluster(X, clusters):
-    pred = []
-    for i in range(X.shape[0]):
-        dist = []
-        for j in range(k):
-            dist.append(distance(X[i], clusters[j]['center']))
-        pred.append(np.argmin(dist))
-    return pred
-
-clusters = assign_clusters(X, clusters)
-clusters = update_clusters(clusters)
-pred = pred_cluster(X, clusters)
-
-plt.scatter(X[:, 0], X[:, 1], c=pred, cmap='viridis')
-for i in clusters:
-    center = clusters[i]['center']
-    plt.scatter(center[0], center[1], marker='^', color='red')
+plt.scatter(x, y, c=kmeans.labels_, cmap='viridis', marker='o')
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], c='red', marker='x', s=200, label='Centroids')
+plt.title('K-means Clustering Results')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.legend()
 plt.show()
