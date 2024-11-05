@@ -1,59 +1,47 @@
-import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-# Step 1: Load the dataset
-df = pd.read_csv('creditcard.csv')
-print("First 5 rows of the dataset:")  
-print(df.head())
+data = load_breast_cancer()
+X = data.data
+y = data.target
 
-# Step 2: Basic information about the dataset before dropping null values
-print("\nBasic Information Before Dropping Null Values:")
-print(df.info())
+X_2D = X[:, [0, 1]]  
 
-# Step 3: Drop rows with null values (if any)
-df = df.dropna()
+X_2D = (X_2D > X_2D.mean(axis=0)).astype(int)
 
-# Step 4: Basic information after dropping null values
-print("\nBasic Information After Dropping Null Values:")
-print(df.info())
+X_train, X_test, y_train, y_test = train_test_split(X_2D, y, test_size=0.2, random_state=42)
 
-# Step 5: Summary statistics of the dataset
-print("\nSummary Statistics After Dropping Null Values:")
-print(df.describe())
-
-# Step 6: Check for missing values
-print("\nMissing Values in Each Column After Dropping Null Values:")
-print(df.isnull().sum())
-
-# Step 7: Check for unique values in each column
-print("\nNumber of Unique Values in Each Column After Dropping Null Values:")
-print(df.nunique())
-
-# Step 8: Separate features (X) and target variable (y)
-X = df.drop(columns=['Class'])  # Features
-y = df['Class']                 # Target variable
-
-# Step 9: Convert features to binary (0 or 1) for Bernoulli Naive Bayes
-X = (X > 0).astype(int)
-
-# Step 10: Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-# Step 11: Create and train the Bernoulli Naive Bayes model
 model = BernoulliNB()
+
 model.fit(X_train, y_train)
 
-# Step 12: Make predictions on the test set
 y_pred = model.predict(X_test)
 
-# Step 13: Evaluate the model
-print("\nAccuracy Score:")
-print(accuracy_score(y_test, y_pred))
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
 
-print("\nConfusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
+print(f"Accuracy: {accuracy:.2f}")
+print("Confusion Matrix:")
+print(conf_matrix)
+print("Classification Report:")
+print(class_report)
 
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+x_min, x_max = X_2D[:, 0].min() - 1, X_2D[:, 0].max() + 1
+y_min, y_max = X_2D[:, 1].min() - 1, X_2D[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),np.arange(y_min, y_max, 0.01))
+
+Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.figure(figsize=(10, 6))
+plt.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')
+plt.scatter(X_2D[:, 0], X_2D[:, 1], c=y, edgecolors='k', marker='o', s=100)
+plt.xlabel('Mean Radius')
+plt.ylabel('Mean Texture')
+plt.title('Decision Boundary of Bernoulli Naive Bayes Classifier on Breast Cancer Dataset')
+plt.show()
