@@ -1,57 +1,30 @@
-# Step 1: Import libraries
-import pandas as pd
 import numpy as np
-from sklearn.datasets import load_iris
-from sklearn.cluster import KMeans, AgglomerativeClustering
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
 
-# Step 2: Load the dataset
 iris = load_iris()
-data = pd.DataFrame(iris.data, columns=iris.feature_names)
-data['target'] = iris.target
+X = iris.data  
+y_true = iris.target  
 
-# For visualization purposes, we’ll reduce dimensions to 2D using only two features
-X = data[['sepal length (cm)', 'sepal width (cm)']].values
+k = 3  
 
-# Step 3: Apply Feature Scaling
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+kmeans = KMeans(n_clusters=k, random_state=42)
+kmeans.fit(X)
 
-# Step 4: Apply K-Means Clustering
-kmeans = KMeans(n_clusters=3, random_state=42)
-kmeans_labels = kmeans.fit_predict(X_scaled)
+centroids = kmeans.cluster_centers_
+labels = kmeans.labels_
 
-# Step 5: Apply Hierarchical Clustering
-hierarchical = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='ward')
-hierarchical_labels = hierarchical.fit_predict(X_scaled)
+df = pd.DataFrame(X, columns=iris.feature_names)
+df['Cluster'] = labels
 
-# Step 6: Visualize K-Means Clustering
-plt.figure(figsize=(14, 6))
-plt.subplot(1, 2, 1)
-plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=kmeans_labels, cmap='viridis', s=50)
-plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=200, c='red', marker='X', label='Centroids')
-plt.title("K-Means Clustering")
-plt.xlabel("Sepal Length (scaled)")
-plt.ylabel("Sepal Width (scaled)")
+plt.figure(figsize=(10, 6))
+plt.scatter(df['sepal length (cm)'], df['sepal width (cm)'], c=df['Cluster'], s=50, cmap='viridis', label='Cluster')
+plt.scatter(centroids[:, 0], centroids[:, 1], c='red', s=200, alpha=0.75, marker='X', label='Centroids')  # plot centroids
+plt.title('K-Means Clustering on the Iris Dataset')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
 plt.legend()
-
-# Step 7: Visualize Hierarchical Clustering
-plt.subplot(1, 2, 2)
-plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=hierarchical_labels, cmap='plasma', s=50)
-plt.title("Hierarchical Clustering")
-plt.xlabel("Sepal Length (scaled)")
-plt.ylabel("Sepal Width (scaled)")
-
-plt.show()
-
-# Step 8: Dendrogram for Hierarchical Clustering
-plt.figure(figsize=(10, 7))
-Z = linkage(X_scaled, method='ward')
-dendrogram(Z)
-plt.title("Dendrogram (Hierarchical Clustering)")
-plt.xlabel("Samples")
-plt.ylabel("Euclidean distances")
+plt.grid()
 plt.show()
